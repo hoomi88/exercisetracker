@@ -43,11 +43,9 @@ app.get('/', (req, res) => {
 
 app.use(express.urlencoded({ extended: false }));
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.post('/api/users', function (req, res) {
-
-  //console.log(req);
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,7 +61,16 @@ app.post('/api/users', function (req, res) {
   });  
 });
 
-app.post('/api/users/:_id/exercises', function (req, res, next) {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+app.post('/api/users/:_id/exercises', function (req, res) {
+  console.log("~~~~~~~~~~~~~~~~~~~~~");
+  console.log(req.params);
+  console.log(req.body);  
+  //console.log(req.body[":_id"]);
+  console.log("~~~~~~~~~~~~~~~~~~~~~");
   
   let newSession = new Session({
     description: req.body.description,
@@ -74,13 +81,13 @@ app.post('/api/users/:_id/exercises', function (req, res, next) {
   if (newSession.date === ''){
     newSession.date = new Date().toISOString().substring(0,10);
   }
-  
+
   User.findByIdAndUpdate(
-    req.body[":_id"],
+    req.params._id,
     {$push: {log: newSession}},
     {new: true},
     (err, updatedUser) => {
-      console.log(updatedUser);
+      //console.log(updatedUser);
       let resObj = {
         _id: updatedUser._id,
         username: updatedUser.username,
@@ -88,12 +95,14 @@ app.post('/api/users/:_id/exercises', function (req, res, next) {
         duration: newSession.duration,
         description: newSession.description
       };
+      console.log(resObj);
       res.json(resObj);
     }
   );
+  
 });
 
-//610eaab254dc35023d66f5c8
+//6110425836925e58f48faa0a
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get("/api/users/", function (req, res) {
   User.find({},(err, arrayOfUsers) => {
@@ -104,7 +113,7 @@ app.get("/api/users/", function (req, res) {
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-//&{from?}&{to?}&{limit?}
+
 app.get("/api/users/:_id/logs", function (req, res) {
   //http://localhost:8080/api/users/6110425836925e58f48faa0a/logs?&limit=2&from=2009-01-01&to=2011-01-01
   console.log(req.query)
